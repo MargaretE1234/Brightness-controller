@@ -1,0 +1,54 @@
+
+int latchPin = 11; // latching pin is 11
+int clockPin = 9; // clock pin is 9
+int dataPin = 12; // data pin is 12
+
+int upButton = 2; // up button is 2
+int downButton = 3; // down is 3
+
+int leds = 0; // number of LEds
+int numLEDSLit = 0; // number of LEDs that should be lit
+
+void setup()
+{
+  pinMode(latchPin, OUTPUT); // latch is an output
+  pinMode(dataPin, OUTPUT); // data is an output
+  pinMode(clockPin, OUTPUT); // clock is an output
+
+  pinMode(upButton, INPUT_PULLUP); // up button is an input
+  pinMode(downButton, INPUT_PULLUP); // down button is an input
+}
+
+void updateShiftRegister() //function that updates the LEDS
+{
+  digitalWrite(latchPin, LOW); // do not update the LEDs yet/ do no open the latch
+  shiftOut(dataPin, clockPin, LSBFIRST, leds); // tell the shift register the LED's value/ update the registers LED data
+  digitalWrite(latchPin, HIGH); // update the LEDs/ open the latch
+}
+
+void loop()
+{
+  if (digitalRead(upButton) == LOW) // if you press the up button
+  {
+    if (numLEDSLit < 8) // and you are below 8 LED's on
+      numLEDSLit++; // number of lit leds increases byone
+    delay(200); // delay
+  }
+
+  if (digitalRead(downButton) == LOW) // if you press the dow button
+  {
+    if (numLEDSLit > 0) // and you have one or more LED 
+      numLEDSLit--; // number of lit leds goes down by one
+
+    delay(200); // delay
+  }
+
+  leds = 0; // all leds turned off
+
+  for (int i = 0; i < numLEDSLit; i++) // for the number of leds that should be lit
+  {
+    leds = leds + (1 << i); // increase the number of leds
+  }
+
+  updateShiftRegister(); // send the number of leds to the register to turn on that number of LEDS
+}
